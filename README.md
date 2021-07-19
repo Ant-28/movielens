@@ -6,5 +6,4 @@ Files:
 * Capstone_Report.Pdf : Report in pdf
 * Analysis.R : Contains all code from capstone_report.Rmd
 
-Note that the PDF knitted from the R Markdown file is too large to store on GitHub, click [here](https://drive.google.com/file/d/1s_OrS9y8RVdoFEY5884n4-TKFwwNmuX_/view?usp=sharing) for the PDF.
 
