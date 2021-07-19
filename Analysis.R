@@ -30,6 +30,7 @@ colnames(movies) <- c("movieId", "title", "genres")
 #                                             title = as.character(title),
 #                                             genres = as.character(genres))
 
+
 # if using R 4.0 or later:
 movies <- as.data.frame(movies) %>% mutate(movieId = as.numeric(movieId),
                                            title = as.character(title),
@@ -1129,6 +1130,7 @@ invisible(gc())
 # training on all of edx
 edx_2 <- edx 
 
+
 save(edx, file = 'edx.Rdata')
 remove(edx)
 
@@ -1144,9 +1146,16 @@ edx_2_numcols <- paste0("n", 1:edx_2_genrecount)
 edx_2_biascols <- paste0("bias", 1:edx_2_genrecount)
 
 invisible(gc())
+# edx_2 can't be split directly due to ram constraints so it will be divided first
+rows_edx <- nrow(edx_2)
+half_rows <- round(rows_edx/2,0)
+edx_2_a <- edx_2[(1:half_rows),]
+edx_2_b <- edx_2[((half_rows+1):rows_edx),]
+remove(edx_2)
+edx_2_a <- edx_2_a %>% separate(data = ., col = genres, into = edx_2_genrecols, sep = "\\|")
 
-edx_2 <- edx_2 %>% separate(data = ., col = genres, into = edx_2_genrecols, sep = "\\|")
-
+edx_2_b <- edx_2_b %>% separate(data = ., col = genres, into = edx_2_genrecols, sep = "\\|")
+edx_2 <- bind_rows(edx_2_a, edx_2_b)
 # Mean
 
 mu <- mean(edx_2$rating)
@@ -1160,7 +1169,7 @@ edx_2 <- edx_2 %>% left_join(movie_bias, by = "movieId")
 user_bias <- edx_2 %>% group_by(userId) %>% summarize(test = sum(rating - mu - effect_bi), n = n()) %>% mutate(effect_bu = test/(n+lambda)) %>% select(-test, -n)
 
 edx_2 <- edx_2 %>% left_join(user_bias, by = "userId")
-
+#Recreating genre bias
 genre_effects_reg <- list()
 ind <- -1 + which(colnames(edx_2) == 'genre1')
 for(i in 1:edx_2_genrecount){
